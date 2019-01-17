@@ -1,0 +1,24 @@
+<title>Hello Color</title>
+ 
+<script id="shader-vs" type="x-shader/x-vertex">
+attribute vec4 aVertexColor;
+attribute vec3 aVertexPosition;
+varying vec4 vColor;
+void main(void) {
+    gl_Position = vec4(aVertexPosition, 1.0);
+    vColor = aVertexColor;
+}
+</script>
+
+<script id="shader-fs" type="x-shader/x-fragment">
+precision mediump float;
+varying vec4 vColor;
+void main(void) {
+        gl_FragColor = vColor;
+ }
+</script>
+
+<script src="HelloColor.js"></script></head>
+<body onload="startup();">
+  <canvas id="myGLCanvas" width="500" height="500"></canvas>
+</body></html>
