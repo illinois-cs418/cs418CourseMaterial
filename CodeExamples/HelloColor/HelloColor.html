@@ -1,0 +1,45 @@
+<!DOCTYPE HTML> 
+<html lang="en"> 
+<head>
+<title>Hello Color</title>
+<meta charset="utf-8"> 
+</head>
+ 
+<script id="shader-vs" type="x-shader/x-vertex">#version 300 es
+in vec4 aVertexColor;
+in vec3 aVertexPosition;
+out vec4 vColor;
+
+void main(void) {
+    // Set the position of each vertex.
+    gl_Position = vec4(aVertexPosition, 1.0);
+
+    // The "out" variable is sent to the fragment shader.
+    vColor = aVertexColor;
+}
+</script>
+  
+<script id="shader-fs" type="x-shader/x-fragment">#version 300 es
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+
+in vec4 vColor;
+out vec4 fragColor;
+
+void main(void) {
+    // The "in" variable comes from the vertex shader.
+    // The "out" variable of the fragment shader is used as the pixel color.
+    fragColor = vColor;
+}
+</script>
+
+<script src="HelloColor.js"></script>
+
+<body onload="startup();">
+  <canvas id="myGLCanvas" width="500" height="500"></canvas>
+</body>
+
+</html>
