@@ -53,20 +53,20 @@ function loadShader(type, shaderSource) {
 function setupShaders() {
   // Source code for a simple vertex shader. Does no transformations.
   var vertexShaderSource = 
-    "#version 300 es                                \n"+
-    "in vec3 aVertexPosition;                       \n"+
-    "void main() {                                  \n"+
-    "  gl_Position = vec4(aVertexPosition, 1.0);    \n"+
-    "}                                              \n";           
+    `#version 300 es                                
+     in vec3 aVertexPosition;                       
+     void main() {                                  
+       gl_Position = vec4(aVertexPosition, 1.0);    
+     }`;           
    
   // Source code for a simple fragment shader that colors everything white.
   var fragmentShaderSource = 
-    "#version 300 es                                \n"+
-    "precision mediump float;                       \n"+
-    "out vec4 fragColor;                            \n"+
-    "void main() {                                  \n"+
-    "  fragColor = vec4(1.0, 1.0, 1.0, 1.0);        \n"+
-    "}                                              \n";
+    `#version 300 es                               
+     precision mediump float;                      
+     out vec4 fragColor;                            
+     void main() {                                  
+       fragColor = vec4(1.0, 1.0, 1.0, 1.0);        
+     }`;
      
   // Create shader objects and compile each of those shaders.
   var vertexShader = loadShader(gl.VERTEX_SHADER, vertexShaderSource);
@@ -84,45 +84,60 @@ function setupShaders() {
   // We only use one shader program for this example, so we can just bind
   // it as the current program here.
   gl.useProgram(shaderProgram);
-
-  // Create the vertex array object, which holds a list of attributes.
-  // Attributes contain data that applies to a specific vertex.
-  vertexArrayObject = gl.createVertexArray();
-  gl.bindVertexArray(vertexArrayObject);
-
-  // Query the index of the vertex position attribute in the list of attributes
-  // maintained by the GPU.
-  shaderProgram.vertexPositionLoc = 
-    gl.getAttribLocation(shaderProgram, "aVertexPosition");
-
-  // We must enable each individual attribute we are using.
-  gl.enableVertexAttribArray(shaderProgram.vertexPositionLoc);
 }
 
 
 /**
  * Sets up the buffer to hold the triangle vertices.
  */
-function setupBuffers() {
-  // Create a buffer, and bind it to the vertex array object.
-  vertexBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-
+function setupBuffers() { 
   // Define a triangle in clip coordinates.
   var triangleVertices = [
          0.0,  0.5,  0.0,
         -0.5, -0.5,  0.0,
          0.5, -0.5,  0.0
   ];
-  // Send the vertex data to the buffer.
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleVertices),
-                gl.STATIC_DRAW);
-  vertexBuffer.itemSize = 3;
-  vertexBuffer.numberOfItems = 3;
 
+  // Create an attribute buffer with position data, and bind it to the vertex array object.
+  vertexBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+    
+  // Send the vertex position data to the buffer.
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleVertices), gl.STATIC_DRAW);
+  vertex Buffer.numberOfItems = 3;
+    
+  //Unbind the buffer for safety 
+  gl.bindBuffer(gl.ARRAY_BUFFER, null) ;    
+    
+  // Create the vertex array object, which holds the state information
+  // needed to send a set of attributes to the shader program.
+  // Attributes contain data that applies to a specific vertex.
+  vertexArrayObject = gl.createVertexArray();
+  gl.bindVertexArray(vertexArrayObject);
+    
+  // Query the index of the vertex position attribute in the list of attributes    
+  // maintained by the GPU.
+  vertexPositionLoc = gl.getAttribLocation(shaderProgram, "aVertexPosition");
+    
+  // Bind the buffer with the data for the attribute
+  gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+
+  // Tell the attribute how to get data out of positionBuffer (ARRAY_BUFFER)
+  var size = 3;          // 3 components per iteration
+  var type = gl.FLOAT;   // the data is 32bit floats
+  var normalize = false; // don't normalize the data
+  var stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next position
+  var offset = 0;        // start at the beginning of the buffer  
+    
   // Binds the buffer that we just made to the vertex position attribute.
-  gl.vertexAttribPointer(shaderProgram.vertexPositionLoc, 
-                         vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
+  gl.vertexAttribPointer(vertexPositionLoc, size, type, normalize, stride, offset);    
+    
+  // We must enable each individual attribute we are using.
+  gl.enableVertexAttribArray(vertexPositionLoc);
+
+  // Unbind the last bound VAO    
+  gl.bindVertexArray(null);
+    
 }
 
 
@@ -136,6 +151,7 @@ function draw() {
   // Clear the screen.
   gl.clear(gl.COLOR_BUFFER_BIT);
   
+  // Make the attribute state for this model current    
   gl.bindVertexArray(vertexArrayObject);
   
   // Render triangles.
@@ -163,7 +179,5 @@ function startup() {
 
 <body onload="startup();">
   <canvas id="myGLCanvas" width="500" height="500"></canvas>
-
-
-
-</body></html>
+</body>
+</html>
